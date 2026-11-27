@@ -1,0 +1,15 @@
+@startuml
+' Generado por spec2code. Es una PROPUESTA del pipeline: audítala contra la spec.
+title CU-02 Iniciar sesión
+actor "Visitante" as P1
+participant "Cuenta" as P2
+participant "Sesion" as P3
+
+P1 -> P2 : iniciar_sesion(usuario, contraseña)
+P2 -> P2 : verificar que el estado sea Activa
+P2 -> P2 : verificar credenciales
+P2 -> P2 : si son incorrectas: intentos_fallidos + 1
+P2 -> P2 : si intentos_fallidos = 5: bloquear()
+P2 -> P3 : si son correctas: crear sesión Activa
+P2 -> P1 : sesión iniciada o mensaje único de error
+@enduml

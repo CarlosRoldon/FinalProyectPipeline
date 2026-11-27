@@ -1,0 +1,50 @@
+@startuml
+' Generado por spec2code. Es una PROPUESTA del pipeline: audítala contra la spec.
+skinparam classAttributeIconSize 0
+
+class Cuenta {
+  - nombre_usuario : String
+  - correo : String
+  - contrasena_hash : String
+  - estado : String
+  - intentos_fallidos : int
+  - fecha_bloqueo : Date
+  - fecha_registro : Date
+  + registrar()
+  + iniciar_sesion()
+  + bloquear()
+  + desbloquear()
+  + buscar_por_correo()
+  + consultar_perfil() : List
+  + restablecer_contrasena()
+  + asociar_personaje()
+  + listar_personajes() : List
+}
+
+class Sesion {
+  - identificador : String
+  - estado : String
+  - fecha_ultimo_movimiento : Date
+  + cerrar()
+  + expirar_por_inactividad()
+}
+
+class TokenRecuperacion {
+  - codigo : String
+  - fecha_creacion : Date
+  - usado : boolean
+  + generar()
+  + esta_vigente() : boolean
+  + marcar_usado()
+}
+
+class Personaje {
+  - nombre : String
+  - clase : String
+  + validar_clase() : boolean
+}
+
+Cuenta "1" -- "0..*" Sesion : inicia
+Cuenta "1" -- "0..*" TokenRecuperacion : solicita
+Cuenta "1" o-- "0..*" Personaje : agrupa (máximo 3)
+@enduml

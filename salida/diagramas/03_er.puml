@@ -1,0 +1,40 @@
+@startuml
+' Generado por spec2code. Es una PROPUESTA del pipeline: audítala contra la spec.
+' La herencia NO se traduce a ER: decidir cómo modelarla (tabla única, por clase...) es trabajo tuyo.
+hide circle
+skinparam linetype ortho
+
+entity Cuenta {
+  * nombre_usuario : varchar <<PK>>
+  --
+  correo : varchar
+  contrasena_hash : varchar
+  estado : varchar
+  intentos_fallidos : int
+  fecha_bloqueo : date
+  fecha_registro : date
+}
+
+entity Sesion {
+  * identificador : varchar <<PK>>
+  --
+  estado : varchar
+  fecha_ultimo_movimiento : date
+}
+
+entity TokenRecuperacion {
+  * codigo : varchar <<PK>>
+  --
+  fecha_creacion : date
+  usado : boolean
+}
+
+entity Personaje {
+  nombre : varchar
+  clase : varchar
+}
+
+Cuenta ||--o{ Sesion : inicia
+Cuenta ||--o{ TokenRecuperacion : solicita
+Cuenta ||--o{ Personaje : agrupa (máximo 3)
+@enduml

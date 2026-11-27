@@ -1,0 +1,15 @@
+@startuml
+' Generado por spec2code. Es una PROPUESTA del pipeline: audítala contra la spec.
+title CU-06 Restablecer contraseña
+actor "Visitante" as P1
+participant "TokenRecuperacion" as P2
+participant "Cuenta" as P3
+participant "Sesion" as P4
+
+P1 -> P2 : presentar token y contraseña nueva
+P2 -> P2 : esta_vigente()
+P2 -> P3 : restablecer_contrasena (valida RN-02)
+P3 -> P2 : marcar_usado()
+P3 -> P4 : cerrar sesiones activas
+P3 -> P1 : contraseña cambiada
+@enduml
