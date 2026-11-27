@@ -1,0 +1,70 @@
+{
+  "modulo": "Cuentas de jugador y sesión",
+  "actores": [
+    {"nombre": "Visitante", "descripcion": "Persona sin sesión iniciada que se registra o recupera su contraseña", "req_ids": ["RF-01", "RF-05", "RF-06"]},
+    {"nombre": "Jugador", "descripcion": "Persona con cuenta que administra sus personajes", "req_ids": ["RF-02", "RF-03", "RF-04", "RF-07", "RF-08"]}
+  ],
+  "casos_uso": [
+    {"id": "CU-01", "nombre": "Registrar cuenta", "actores": ["Visitante"], "req_ids": ["RF-01", "RN-01", "RN-02", "RN-03", "RNF-01"]},
+    {"id": "CU-02", "nombre": "Iniciar sesión", "actores": ["Jugador"], "req_ids": ["RF-02", "RN-04", "RN-08", "RNF-02"]},
+    {"id": "CU-03", "nombre": "Cerrar sesión", "actores": ["Jugador"], "req_ids": ["RF-03", "RN-09"]},
+    {"id": "CU-04", "nombre": "Consultar perfil", "actores": ["Jugador"], "req_ids": ["RF-04"]},
+    {"id": "CU-05", "nombre": "Solicitar recuperación de contraseña", "actores": ["Visitante"], "req_ids": ["RF-05", "RN-07", "RN-08"]},
+    {"id": "CU-06", "nombre": "Restablecer contraseña", "actores": ["Visitante"], "req_ids": ["RF-06", "RN-02", "RN-07"]},
+    {"id": "CU-07", "nombre": "Asociar personaje", "actores": ["Jugador"], "req_ids": ["RF-07", "RN-05", "RN-06"]},
+    {"id": "CU-08", "nombre": "Listar personajes", "actores": ["Jugador"], "req_ids": ["RF-08"]}
+  ],
+  "entidades": [
+    {"nombre": "Cuenta", "req_ids": ["RF-01", "RF-02", "RF-04", "RF-06", "RN-01", "RN-03", "RN-04", "RN-05"],
+     "atributos": [
+       {"nombre": "nombre_usuario", "tipo": "texto", "es_clave": true},
+       {"nombre": "correo", "tipo": "texto"},
+       {"nombre": "contrasena_hash", "tipo": "texto"},
+       {"nombre": "estado", "tipo": "texto"},
+       {"nombre": "intentos_fallidos", "tipo": "entero"},
+       {"nombre": "fecha_registro", "tipo": "fecha"}],
+     "metodos": [
+       {"nombre": "registrar", "descripcion": "Crea la cuenta Activa con 0 personajes y 0 intentos fallidos", "req_ids": ["RF-01", "RN-01", "RN-02", "RN-03"]},
+       {"nombre": "iniciar_sesion", "descripcion": "Valida credenciales y crea la sesión", "req_ids": ["RF-02", "RN-04", "RN-08"]},
+       {"nombre": "consultar_perfil", "descripcion": "Devuelve usuario, correo, fecha y cantidad de personajes", "req_ids": ["RF-04"], "retorno": "lista"},
+       {"nombre": "restablecer_contrasena", "descripcion": "Cambia la contraseña, desbloquea y cierra sesiones", "req_ids": ["RF-06", "RN-02"]},
+       {"nombre": "asociar_personaje", "descripcion": "Asocia un personaje si hay menos del máximo", "req_ids": ["RF-07", "RN-05"]},
+       {"nombre": "listar_personajes", "descripcion": "Lista nombre y clase de sus personajes", "req_ids": ["RF-08"], "retorno": "lista"}]},
+    {"nombre": "Sesion", "req_ids": ["RF-02", "RF-03", "RN-09"],
+     "atributos": [
+       {"nombre": "estado", "tipo": "texto"},
+       {"nombre": "fecha_ultimo_movimiento", "tipo": "fecha"}],
+     "metodos": [
+       {"nombre": "cerrar", "descripcion": "Pasa la sesión a Cerrada", "req_ids": ["RF-03"]},
+       {"nombre": "expirar_por_inactividad", "descripcion": "Cierra la sesión tras 30 minutos sin actividad", "req_ids": ["RN-09"]}]},
+    {"nombre": "TokenRecuperacion", "req_ids": ["RF-05", "RF-06", "RN-07"],
+     "atributos": [
+       {"nombre": "codigo", "tipo": "texto", "es_clave": true},
+       {"nombre": "fecha_creacion", "tipo": "fecha"},
+       {"nombre": "usado", "tipo": "booleano"}],
+     "metodos": [
+       {"nombre": "generar", "descripcion": "Crea un token e invalida el anterior de la cuenta", "req_ids": ["RF-05", "RN-07"]},
+       {"nombre": "esta_vigente", "descripcion": "Vigente si tiene menos de 30 minutos y no fue usado", "req_ids": ["RN-07"], "retorno": "booleano"}]},
+    {"nombre": "Personaje", "req_ids": ["RF-07", "RF-08", "RN-06"],
+     "atributos": [
+       {"nombre": "nombre", "tipo": "texto", "es_clave": true},
+       {"nombre": "clase", "tipo": "texto"}]}
+  ],
+  "relaciones": [
+    {"desde": "Cuenta", "hasta": "Sesion", "tipo": "asociacion", "multiplicidad_desde": "1", "multiplicidad_hasta": "0..*", "etiqueta": "inicia", "req_ids": ["RF-02", "RF-03"]},
+    {"desde": "Cuenta", "hasta": "TokenRecuperacion", "tipo": "asociacion", "multiplicidad_desde": "1", "multiplicidad_hasta": "0..*", "etiqueta": "solicita", "req_ids": ["RF-05", "RF-06"]},
+    {"desde": "Cuenta", "hasta": "Personaje", "tipo": "agregacion", "multiplicidad_desde": "1", "multiplicidad_hasta": "0..*", "etiqueta": "tiene", "req_ids": ["RF-07", "RF-08", "RN-05", "RN-06"]}
+  ],
+  "secuencias": [
+    {"caso_uso": "CU-02", "req_ids": ["RF-02", "RN-04"], "mensajes": [
+      {"de": "Jugador", "a": "Cuenta", "texto": "iniciar_sesion(usuario, contraseña)"},
+      {"de": "Cuenta", "a": "Cuenta", "texto": "verificar estado y credenciales"},
+      {"de": "Cuenta", "a": "Sesion", "texto": "crear sesión activa"},
+      {"de": "Cuenta", "a": "Jugador", "texto": "sesión iniciada"}]},
+    {"caso_uso": "CU-06", "req_ids": ["RF-06", "RN-07"], "mensajes": [
+      {"de": "Visitante", "a": "TokenRecuperacion", "texto": "presentar token"},
+      {"de": "TokenRecuperacion", "a": "TokenRecuperacion", "texto": "esta_vigente()"},
+      {"de": "TokenRecuperacion", "a": "Cuenta", "texto": "restablecer_contrasena"},
+      {"de": "Cuenta", "a": "Visitante", "texto": "contraseña cambiada"}]}
+  ]
+}
